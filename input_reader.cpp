@@ -30,8 +30,15 @@ void LoadQueries(std::istream& in){
     in.get();
     for(auto i = 0; i < queries_count; ++i ){
         getline(in, line);
-        auto x = output::ParseBus(line);
-        output::PrintBus(std::cout, x, catalogue.FindBus(x));
+        if (line[0] == 'B'){
+            auto x = output::ParseBus(line);
+            output::PrintBus(std::cout, x, catalogue.FindBus(x));
+        }
+        else if (line[0] == 'S'){
+            auto x = output::ParseStop(line);
+            output::PrintStop(std::cout, x, catalogue.GetInfoAboutStop(x));
+        }
+
     }
 }
 

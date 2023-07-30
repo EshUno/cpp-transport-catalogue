@@ -69,9 +69,10 @@ void TestInput(){
 int main()
 {
     //tests::TestInput();
-    //ifstream inf("/home/esh/code/transport_catalog/test1.txt");
-    //ifstream inf("/home/esh/code/transport_catalog/tsA_case1_input.txt");
-    ifstream inf("/home/esh/code/transport_catalog/tsA_case2_input.txt");
+    //ifstream inf("/home/esh/code/transport_catalogue/test1.txt");
+    ifstream inf("/home/esh/code/transport_catalogue/test2.txt");
+    //ifstream inf("/home/esh/code/transport_catalogue/tsA_case1_input.txt");
+    //ifstream inf("/home/esh/code/transport_catalogue/tsB_case1_input.txt");
     if (!inf)
     {
         exit(1);

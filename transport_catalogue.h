@@ -32,7 +32,7 @@ public:
     Stop* FindStop(std::string& name);
     Bus* FindBus(std::string& name);
 
-
+    std::pair<bool,std::set<std::string_view>*> GetInfoAboutStop(std::string &name);
     size_t GetStopsCount();
 
 private:
@@ -41,6 +41,10 @@ private:
 
     std::deque<Bus> storage_buses_;
     std::unordered_map<std::string_view, Bus*> buses_;
+
+
+    // НАЗВАНИЕ ОСТАНОВКИ - сет с маршрутами
+    std::unordered_map<std::string_view, std::set<std::string_view>> info_about_stop;
 
 };
 } //transport

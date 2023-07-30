@@ -2,7 +2,8 @@
 #include <string>
 #include "transport_catalogue.h"
 namespace output {
+std::string ParseStop(std::string& line);
 std::string ParseBus(std::string& line);
 void PrintBus(std::ostream& os, std::string &  name, transport::Bus *bus);
-
+void PrintStop(std::ostream& os, std::string &  name, std::pair<bool,std::set<std::string_view>*> st);
 } //output

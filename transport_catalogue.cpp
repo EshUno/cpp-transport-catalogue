@@ -2,6 +2,15 @@
 
 namespace transport {
 
+double Bus::GetDistance(){
+    double res = 0;
+    for (auto i = 1; i < stops.size(); ++i){
+        res += geo::ComputeDistance(stops[i - 1]->coord, stops[i]->coord);
+    }
+    if (type == BusType::DirectType) res *= 2;
+    return res;
+}
+
 size_t TransportCatalogue::GetStopsCount(){
     return storage_stops_.size();
 }
@@ -16,14 +25,15 @@ void TransportCatalogue::AddBus(std::string &name, BusType type, std::vector<std
     bus.name = name;
     bus.type = type;
     for (auto &x : stops){
-        auto y = stops_.find(x)->second;
-        bus.stops.push_back(y);
+        auto y = stops_.find(x);
+        bus.stops.push_back(y->second);
+        info_about_stop[y->first].insert(name);
     }
     for (auto &x : bus.stops){
         bus.unique_stops.insert(x);
     }
     auto pos = storage_buses_.insert(storage_buses_.begin(), std::move(bus));
-    buses_.insert({std::string_view(pos->name), &(*pos)});
+    buses_.insert({std::string_view(pos->name), &(*pos)});  
 }
 
 Stop* TransportCatalogue::FindStop(std::string& name){
@@ -42,13 +52,13 @@ Bus* TransportCatalogue::FindBus(std::string& name){
     return nullptr;
 }
 
-double Bus::GetDistance(){
-    double res = 0;
-    for (auto i = 1; i < stops.size(); ++i){
-        res += geo::ComputeDistance(stops[i - 1]->coord, stops[i]->coord);
+std::pair<bool,std::set<std::string_view>*> TransportCatalogue::GetInfoAboutStop(std::string &name){
+    auto pos = info_about_stop.find(name);
+    if (pos == info_about_stop.end()){
+        bool exist = (stops_.find(name) != stops_.end())? true: false;
+        return {exist, nullptr};
     }
-    if (type == BusType::DirectType) res *= 2;
-    return res;
+    return {true, &pos->second};
 }
 
 } //transport
