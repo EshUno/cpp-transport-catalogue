@@ -12,21 +12,17 @@ std::string ParseStop(std::string& line){
     return line.substr(line.find_first_not_of(' '), line.find_last_not_of(' '));
 }
 
-void PrintBus(std::ostream& os, std::string& name, transport::Bus *bus){
-    if (bus == nullptr){
-        os << "Bus " << name << ": not found" << std::endl;
+void PrintBus(std::ostream& os, transport::BusPrintInfo* info){
+    // Bus X: R stops on route, U unique stops, L route length, C curvature
+    if (info->exist == false){
+        os << "Bus " << info->name << ": not found" << std::endl;
     }
     else {
-        if (bus->type == transport::BusType::DirectType){
-            os << "Bus " << name << ": " << bus->stops.size() * 2 - 1 << " stops on route, "
-               << bus->unique_stops.size() << " unique stops, "
-               << std::setprecision(6) << bus->GetDistance() << " route length" <<std::endl;
-        }
-        else {
-            os << "Bus " << name << ": " << bus->stops.size() << " stops on route, "
-               << bus->unique_stops.size() << " unique stops, "
-               << std::setprecision(6) << bus->GetDistance() << " route length" <<std::endl;
-        }
+        os << "Bus " << info->name << ": "
+           << info->stops_route << " stops on route, "
+           << info->unique_stops << " unique stops, "
+           << std::setprecision(6) << info->route_length << " route length, "
+           << std::setprecision(6) << info->curvature << " curvature" <<std::endl;
     }
 }
 void PrintStop(std::ostream& os, std::string& name, std::pair<bool,std::set<std::string_view>*> st){

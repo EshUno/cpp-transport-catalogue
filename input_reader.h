@@ -10,7 +10,13 @@ struct Bus{
     std::string name;
     std::vector<std::string> stops_name;
 };
-transport::Stop ParseStop(std::string& line);
+
+struct Stop{
+    transport::Stop stop;
+    std::unordered_map<std::string, int> dm;
+};
+
+input::Stop ParseStop(std::string& line);
 input::Bus ParseBus(std::string& line);
 
 } //input

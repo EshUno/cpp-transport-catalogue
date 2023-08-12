@@ -12,27 +12,42 @@ void LoadQueries(std::istream& in){
     in >> queries_count;
     in.get();
     std::vector<input::Bus> bus_queries;
+    std::vector<input::Stop> stop_queries;
     for(auto i = 0; i < queries_count; ++i ){
         getline(in, line);
         if (line[0] == 'S'){
-            catalogue.AddStop(input::ParseStop(line));
+            auto x = input::ParseStop(line);
+            stop_queries.push_back(x);
+            catalogue.AddStop(x.stop);
         }
         else if (line[0] == 'B'){
             bus_queries.push_back(std::move(input::ParseBus(line)));
         }
     }
+    for (auto &x : stop_queries){
+        catalogue.AddDistance(catalogue.FindStop(x.stop.name), x.dm);
+    }
+
     for (auto &x : bus_queries){
         catalogue.AddBus(x.name, x.type, x.stops_name);
     }
 
-   //ввоз запросов к базе данных
+
+   //ввод запросов к базе данных
     in  >> queries_count;
     in.get();
     for(auto i = 0; i < queries_count; ++i ){
         getline(in, line);
         if (line[0] == 'B'){
             auto x = output::ParseBus(line);
-            output::PrintBus(std::cout, x, catalogue.FindBus(x));
+            auto bus = catalogue.FindBus(x);
+            transport::BusPrintInfo bus_info;
+            if (bus != nullptr) bus_info = catalogue.GetBusPrintInfo(bus);
+            else {
+                bus_info.name = x;
+                bus_info.exist = false;
+            }
+            output::PrintBus(std::cout, &bus_info);
         }
         else if (line[0] == 'S'){
             auto x = output::ParseStop(line);
@@ -43,20 +58,42 @@ void LoadQueries(std::istream& in){
 }
 
 namespace input {
-transport::Stop ParseStop(std::string& line){
-    transport::Stop stop;
+input::Stop ParseStop(std::string& line){
+    input::Stop stop;
     line = line.substr(4, line.size());
 
-    auto pos_name = line.find(':');
-    stop.name = line.substr(line.find_first_not_of(' '), pos_name - 1);
-    line = line.substr(pos_name + 1, line.size());
-
-    auto pos_comma = line.find(',');
-    stop.coord.lat = std::stod(line.substr(line.find_first_not_of(' '), pos_comma - 1));
+    auto pos_comma = line.find(':');
+    stop.stop.name = line.substr(line.find_first_not_of(' '), pos_comma - 1);
     line = line.substr(pos_comma + 1, line.size());
 
-    stop.coord.lng = std::stod(line.substr(line.find_first_not_of(' '), line.find_last_not_of(' ')));
+    pos_comma = line.find(',');
+    stop.stop.coord.lat = std::stod(line.substr(line.find_first_not_of(' '), pos_comma - 1));
+    line = line.substr(pos_comma + 1, line.size());
 
+    pos_comma = line.find(',');
+    if (pos_comma == line.npos){
+        stop.stop.coord.lng = std::stod(line.substr(line.find_first_not_of(' '), line.find_last_not_of(' ')));
+        line.erase();
+    }
+    else {
+        stop.stop.coord.lng = std::stod(line.substr(line.find_first_not_of(' '), pos_comma - 1));
+        line = line.substr(pos_comma + 1, line.size());
+    }
+
+    while (!line.empty()){
+        auto pos = line.find(',');
+        auto pos_m = line.find("m");
+        int distance = std::stoi(std::string(line.substr(line.find_first_not_of(' '), pos_m - 1)));
+        if (pos == line.npos) {
+            line = line.substr(pos_m + 4, line.size());
+            stop.dm[line.substr(line.find_first_not_of(' '), pos - 1)] = distance;
+            break;
+        }
+        line = line.substr(pos_m + 4, line.size());
+        pos = line.find(',');
+        stop.dm[line.substr(line.find_first_not_of(' '), pos - 1)] = distance;
+        line = line.substr(pos + 1, line.size());
+    }
     return stop;
 }
 

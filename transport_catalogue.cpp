@@ -11,7 +11,7 @@ double Bus::GetDistance(){
     return res;
 }
 
-size_t TransportCatalogue::GetStopsCount(){
+size_t TransportCatalogue::GetStopsCount() const{
     return storage_stops_.size();
 }
 
@@ -36,7 +36,13 @@ void TransportCatalogue::AddBus(std::string &name, BusType type, std::vector<std
     buses_.insert({std::string_view(pos->name), &(*pos)});  
 }
 
-Stop* TransportCatalogue::FindStop(std::string& name){
+void TransportCatalogue::AddDistance(Stop *stop, std::unordered_map<std::string, int>& dm){
+    for (auto &x : dm){
+        distances_.insert({{stop, FindStop(x.first)}, x.second});
+    }
+}
+
+Stop* TransportCatalogue::FindStop(const std::string& name) const{
     auto it = stops_.find(name);
     if (it != stops_.end()){
         return it->second;
@@ -44,7 +50,7 @@ Stop* TransportCatalogue::FindStop(std::string& name){
     return nullptr;
 }
 
-Bus* TransportCatalogue::FindBus(std::string& name){
+Bus* TransportCatalogue::FindBus(const std::string& name) const{
     auto it = buses_.find(name);
     if (it != buses_.end()){
         return it->second;
@@ -59,6 +65,38 @@ std::pair<bool,std::set<std::string_view>*> TransportCatalogue::GetInfoAboutStop
         return {exist, nullptr};
     }
     return {true, &pos->second};
+}
+
+double TransportCatalogue::ComputeRouteDistance(Bus *bus) const{
+    double res = 0;
+    for (auto i = 1; i < bus->stops.size(); ++i){
+        res += ComputeRouteDistance(bus->stops[i-1]->name, bus->stops[i]->name);
+    }
+    if (bus->type == transport::BusType::DirectType){
+        for (auto i = bus->stops.size() - 1; i > 0; --i){
+            res += ComputeRouteDistance(bus->stops[i]->name, bus->stops[i - 1]->name);
+        }
+    }
+    return res;
+}
+
+double TransportCatalogue::ComputeRouteDistance(std::string_view from, std::string_view to) const{
+    auto key = std::make_pair(stops_.at(from), stops_.at(to));
+    return (distances_.count(key) > 0) ? distances_.at(key)
+            : distances_.at({stops_.at(to), stops_.at(from)});
+}
+
+BusPrintInfo TransportCatalogue::GetBusPrintInfo(Bus *bus) const {
+    BusPrintInfo info;
+    info.name = bus->name;
+    info.exist = true;
+    info.stops_route = (bus->type == transport::BusType::DirectType)?
+                               (bus->stops.size() * 2 - 1): (bus->stops.size());
+    info.unique_stops = bus->unique_stops.size();
+    info.route_length = ComputeRouteDistance(bus);
+    info.curvature = static_cast<double>(info.route_length) / bus->GetDistance();
+
+    return (info);
 }
 
 } //transport
