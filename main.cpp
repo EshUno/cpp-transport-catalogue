@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "stat_reader.h"
 #include "transport_catalogue.h"
 #include "input_reader.h"
 using namespace std;
@@ -70,12 +71,13 @@ int main()
 {
     //tests::TestInput();
     ifstream inf("/home/esh/code/transport_catalogue/tsC_case1_input.txt");
-
+    //ifstream inf("/home/esh/code/transport_catalogue/test3.txt");
     if (!inf)
     {
         exit(1);
     }
     transport::TransportCatalogue catalogue;
     input::LoadQueries(inf, catalogue);
+    output::LoadQueries(inf, catalogue);
     return 0;
 }

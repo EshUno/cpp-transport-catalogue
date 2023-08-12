@@ -2,44 +2,30 @@
 
 namespace transport {
 
-double Bus::GetDistance(){
-    double res = 0;
-    for (auto i = 1; i < stops.size(); ++i){
-        res += geo::ComputeDistance(stops[i - 1]->coord, stops[i]->coord);
-    }
-    if (type == BusType::DirectType) res *= 2;
-    return res;
-}
-
 size_t TransportCatalogue::GetStopsCount() const{
     return storage_stops_.size();
 }
 
-void TransportCatalogue::AddStop(Stop stop){
-    auto pos = storage_stops_.insert(storage_stops_.begin(), std::move(stop));
+void TransportCatalogue::AddStop(const Stop &stop){
+    auto pos = storage_stops_.insert(storage_stops_.begin(), stop);
     stops_.insert({std::string_view(pos->name), &(*pos)});
 }
 
-void TransportCatalogue::AddBus(std::string &name, BusType type, std::vector<std::string>& stops){
+void TransportCatalogue::AddBus(const std::string &name, BusType type, const std::vector<std::string>& stops){
     Bus bus;
     bus.name = name;
     bus.type = type;
+    auto pos = storage_buses_.insert(storage_buses_.begin(), std::move(bus));
     for (auto &x : stops){
         auto y = stops_.find(x);
-        bus.stops.push_back(y->second);
-        info_about_stop[y->first].insert(name);
+        pos->stops.push_back(y->second);
+        info_about_stop[y->first].insert(pos->name);
     }
-    for (auto &x : bus.stops){
-        bus.unique_stops.insert(x);
-    }
-    auto pos = storage_buses_.insert(storage_buses_.begin(), std::move(bus));
-    buses_.insert({std::string_view(pos->name), &(*pos)});  
+    buses_.insert({std::string_view(pos->name), &(*pos)});
 }
 
-void TransportCatalogue::AddDistance(Stop *stop, std::unordered_map<std::string, int>& dm){
-    for (auto &x : dm){
-        distances_.insert({{stop, FindStop(x.first)}, x.second});
-    }
+void TransportCatalogue::AddDistance(const Stop *stop1, const Stop *stop2, int  dm){
+    distances_.insert({{stop1, stop2}, dm});
 }
 
 Stop* TransportCatalogue::FindStop(const std::string& name) const{
@@ -58,16 +44,23 @@ Bus* TransportCatalogue::FindBus(const std::string& name) const{
     return nullptr;
 }
 
-std::pair<bool,std::set<std::string_view>*> TransportCatalogue::GetInfoAboutStop(std::string &name){
+std::optional<const std::set<std::string_view>*> TransportCatalogue::GetInfoAboutStop(const std::string &name) const {
+    // return == std::nullopt -> no such stop
+    // return != std::nullopt && *return == nullptr - no buses for stop
+    // else has buses
+
     auto pos = info_about_stop.find(name);
     if (pos == info_about_stop.end()){
-        bool exist = (stops_.find(name) != stops_.end())? true: false;
-        return {exist, nullptr};
+        if (stops_.find(name) == stops_.end()) {
+            return std::nullopt;
+        }
+
+        return {nullptr};
     }
-    return {true, &pos->second};
+    return {&pos->second};
 }
 
-double TransportCatalogue::ComputeRouteDistance(Bus *bus) const{
+double TransportCatalogue::ComputeRouteDistance(const Bus *bus) const{
     double res = 0;
     for (auto i = 1; i < bus->stops.size(); ++i){
         res += ComputeRouteDistance(bus->stops[i-1]->name, bus->stops[i]->name);
@@ -86,15 +79,27 @@ double TransportCatalogue::ComputeRouteDistance(std::string_view from, std::stri
             : distances_.at({stops_.at(to), stops_.at(from)});
 }
 
-BusPrintInfo TransportCatalogue::GetBusPrintInfo(Bus *bus) const {
+BusPrintInfo TransportCatalogue::GetBusPrintInfo(const Bus *bus) const {
     BusPrintInfo info;
     info.name = bus->name;
     info.exist = true;
     info.stops_route = (bus->type == transport::BusType::DirectType)?
                                (bus->stops.size() * 2 - 1): (bus->stops.size());
-    info.unique_stops = bus->unique_stops.size();
+
+    std::set <Stop *> uniq (bus->stops.begin(), bus->stops.end());
+    info.unique_stops = uniq.size();
     info.route_length = ComputeRouteDistance(bus);
-    info.curvature = static_cast<double>(info.route_length) / bus->GetDistance();
+
+    auto get_distance = [](const Bus &bus){
+        double res = 0;
+        for (auto i = 1; i < bus.stops.size(); ++i){
+            res += geo::ComputeDistance(bus.stops[i - 1]->coord, bus.stops[i]->coord);
+        }
+        if (bus.type == BusType::DirectType) res *= 2;
+        return res;
+    };
+
+    info.curvature = static_cast<double>(info.route_length) / get_distance(*bus);
 
     return (info);
 }

@@ -1,5 +1,4 @@
 #include "input_reader.h"
-#include "stat_reader.h"
 #include <istream>
 #include <iostream>
 
@@ -26,35 +25,13 @@ void LoadQueries(std::istream& in, transport::TransportCatalogue &catalogue){
         }
     }
     for (auto &x : stop_queries){
-        catalogue.AddDistance(catalogue.FindStop(x.stop.name), x.dm);
+        for (auto &one : x.dm){
+            catalogue.AddDistance(catalogue.FindStop(x.stop.name), catalogue.FindStop(one.first), one.second);
+        }
     }
 
     for (auto &x : bus_queries){
         catalogue.AddBus(x.name, x.type, x.stops_name);
-    }
-
-
-    //ввод запросов к базе данных
-    in  >> queries_count;
-    in.get();
-    for(auto i = 0; i < queries_count; ++i ){
-        getline(in, line);
-        if (line[0] == 'B'){
-            auto x = output::ParseBus(line);
-            auto bus = catalogue.FindBus(x);
-            transport::BusPrintInfo bus_info;
-            if (bus != nullptr) bus_info = catalogue.GetBusPrintInfo(bus);
-            else {
-                bus_info.name = x;
-                bus_info.exist = false;
-            }
-            output::PrintBus(std::cout, &bus_info);
-        }
-        else if (line[0] == 'S'){
-            auto x = output::ParseStop(line);
-            output::PrintStop(std::cout, x, catalogue.GetInfoAboutStop(x));
-        }
-
     }
 }
 

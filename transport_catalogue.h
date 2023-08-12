@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <set>
+#include <optional>
 
 #include "geo.h"
 namespace transport {
@@ -33,13 +34,15 @@ private:
     std::hash<double> d_hasher_;
 };
 
-enum class BusType{DirectType, CircularType};
+enum class BusType{
+    DirectType,
+    CircularType
+};
+
 struct Bus{
     BusType type;
     std::string name;
     std::vector<Stop*> stops;
-    std::set<Stop*> unique_stops;
-    double GetDistance();
 };
 
 struct BusPrintInfo{
@@ -56,21 +59,22 @@ class TransportCatalogue{
 public:
     TransportCatalogue() = default;
 
-    void AddStop(Stop stop);
-    void AddBus(std::string &name, BusType type, std::vector<std::string>& stops);
-    void AddDistance(Stop *stop, std::unordered_map<std::string, int>& dm);
+    void AddStop(const Stop &stop);
+    void AddBus(const std::string &name, BusType type, const std::vector<std::string>& stops);
+    void AddDistance(const Stop *stop1, const Stop *stop2, int  dm);
 
     Stop* FindStop(const std::string& name) const;
     Bus* FindBus(const std::string& name) const;
 
-    std::pair<bool,std::set<std::string_view>*> GetInfoAboutStop(std::string &name);
-    size_t GetStopsCount() const;
+    std::optional<const std::set<std::string_view>*> GetInfoAboutStop(const std::string &name) const;
 
-    double ComputeRouteDistance(Bus *bus) const;
-    double ComputeRouteDistance(std::string_view from, std::string_view to) const;
+    //std::pair<bool, const std::set<std::string_view>*> GetInfoAboutStop(const std::string &name) const;
 
-    BusPrintInfo GetBusPrintInfo(Bus *bus) const;
+    BusPrintInfo GetBusPrintInfo(const Bus *bus) const;
 private:
+    size_t GetStopsCount() const;
+    double ComputeRouteDistance(const Bus *bus) const;
+    double ComputeRouteDistance(std::string_view from, std::string_view to) const;
     std::deque<Stop> storage_stops_;
     std::unordered_map<std::string_view, Stop*> stops_;
 
