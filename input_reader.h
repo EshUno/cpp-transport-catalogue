@@ -3,8 +3,8 @@
 #include <string>
 #include "transport_catalogue.h"
 
-void LoadQueries(std::istream& in);
 namespace input {
+void LoadQueries(std::istream& in, transport::TransportCatalogue &catalogue);
 struct Bus{
     transport::BusType type;
     std::string name;

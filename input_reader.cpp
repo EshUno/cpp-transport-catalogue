@@ -3,8 +3,9 @@
 #include <istream>
 #include <iostream>
 
-void LoadQueries(std::istream& in){
-    transport::TransportCatalogue catalogue;
+
+namespace input {
+void LoadQueries(std::istream& in, transport::TransportCatalogue &catalogue){
     int queries_count = 0;
     std::string line;
 
@@ -33,7 +34,7 @@ void LoadQueries(std::istream& in){
     }
 
 
-   //ввод запросов к базе данных
+    //ввод запросов к базе данных
     in  >> queries_count;
     in.get();
     for(auto i = 0; i < queries_count; ++i ){
@@ -57,7 +58,6 @@ void LoadQueries(std::istream& in){
     }
 }
 
-namespace input {
 input::Stop ParseStop(std::string& line){
     input::Stop stop;
     line = line.substr(4, line.size());
