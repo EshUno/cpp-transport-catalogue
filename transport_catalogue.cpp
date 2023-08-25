@@ -24,8 +24,8 @@ void TransportCatalogue::AddBus(const std::string &name, BusType type, const std
     buses_.insert({std::string_view(pos->name), &(*pos)});
 }
 
-void TransportCatalogue::AddDistance(const Stop *stop1, const Stop *stop2, int  dm){
-    distances_.insert({{stop1, stop2}, dm});
+void TransportCatalogue::AddDistance(const Stop *from, const Stop *to, int  dm){
+    distances_.insert({{from, to}, dm});
 }
 
 Stop* TransportCatalogue::FindStop(const std::string& name) const{
@@ -76,15 +76,16 @@ double TransportCatalogue::ComputeRouteDistance(const Bus *bus) const{
 double TransportCatalogue::ComputeRouteDistance(std::string_view from, std::string_view to) const{
     auto key = std::make_pair(stops_.at(from), stops_.at(to));
     return (distances_.count(key) > 0) ? distances_.at(key)
-            : distances_.at({stops_.at(to), stops_.at(from)});
+                                       : distances_.at({stops_.at(to), stops_.at(from)});
 }
 
-BusPrintInfo TransportCatalogue::GetBusPrintInfo(const Bus *bus) const {
+BusPrintInfo TransportCatalogue::GetBusPrintInfo(const Bus *bus, int id) const {
     BusPrintInfo info;
+    info.id = id;
     info.name = bus->name;
     info.exist = true;
     info.stops_route = (bus->type == transport::BusType::DirectType)?
-                               (bus->stops.size() * 2 - 1): (bus->stops.size());
+                           (bus->stops.size() * 2 - 1): (bus->stops.size());
 
     std::set <Stop *> uniq (bus->stops.begin(), bus->stops.end());
     info.unique_stops = uniq.size();

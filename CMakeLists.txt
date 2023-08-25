@@ -9,7 +9,13 @@ add_executable(transport_catalog main.cpp
     geo.h
     input_reader.h input_reader.cpp
     stat_reader.h stat_reader.cpp
-    transport_catalogue.h transport_catalogue.cpp)
+    transport_catalogue.h transport_catalogue.cpp
+    domain.h domain.cpp
+    geo.cpp
+    json.h json.cpp
+    svg.h svg.cpp
+    json_reader.h json_reader.cpp
+    request_handler.h request_handler.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS transport_catalog

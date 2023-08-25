@@ -18,7 +18,7 @@ void LoadQueries(std::istream& in, transport::TransportCatalogue &catalogue){
             auto x = output::ParseBus(line);
             auto bus = catalogue.FindBus(x);
             transport::BusPrintInfo bus_info;
-            if (bus != nullptr) bus_info = catalogue.GetBusPrintInfo(bus);
+            if (bus != nullptr) bus_info = catalogue.GetBusPrintInfo(bus, 0);
             else {
                 bus_info.name = x;
                 bus_info.exist = false;
@@ -26,8 +26,8 @@ void LoadQueries(std::istream& in, transport::TransportCatalogue &catalogue){
             output::PrintBus(std::cout, &bus_info);
         }
         else if (line[0] == 'S'){
-            auto x = output::ParseStop(line);
-            output::PrintStop(std::cout, x, catalogue.GetInfoAboutStop(x));
+            auto word = output::ParseStop(line);
+            output::PrintStop(std::cout, word, catalogue.GetInfoAboutStop(word));
         }
 
     }

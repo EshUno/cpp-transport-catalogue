@@ -24,6 +24,7 @@ void LoadQueries(std::istream& in, transport::TransportCatalogue &catalogue){
             bus_queries.push_back(std::move(input::ParseBus(line)));
         }
     }
+
     for (auto &x : stop_queries){
         for (auto &one : x.dm){
             catalogue.AddDistance(catalogue.FindStop(x.stop.name), catalogue.FindStop(one.first), one.second);
