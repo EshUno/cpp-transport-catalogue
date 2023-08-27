@@ -21,5 +21,4 @@ struct Bus{
     std::vector<Stop*> stops;
 };
 
-
 } // namespace name
