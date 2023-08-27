@@ -20,6 +20,7 @@ void TransportCatalogue::AddBus(const std::string &name, BusType type, const std
         auto y = stops_.find(x);
         pos->stops.push_back(y->second);
         info_about_stop[y->first].insert(pos->name);
+        UpdateMinMaxStopCoordinates(y->second->coord);
     }
     buses_.insert({std::string_view(pos->name), &(*pos)});
 }
@@ -45,10 +46,6 @@ Bus* TransportCatalogue::FindBus(const std::string& name) const{
 }
 
 std::optional<const std::set<std::string_view>*> TransportCatalogue::GetInfoAboutStop(const std::string &name) const {
-    // return == std::nullopt -> no such stop
-    // return != std::nullopt && *return == nullptr - no buses for stop
-    // else has buses
-
     auto pos = info_about_stop.find(name);
     if (pos == info_about_stop.end()){
         if (stops_.find(name) == stops_.end()) {
@@ -105,6 +102,24 @@ BusPrintInfo TransportCatalogue::GetBusPrintInfo(const Bus *bus, int id) const {
     return (info);
 }
 
+geo::Coordinates TransportCatalogue::GetMinCoordinates() const{
+    return min_coordinates_;
+}
+
+geo::Coordinates TransportCatalogue::GetMaxCoordinates() const{
+    return max_coordinates_;
+}
+
+const std::map<std::string_view, Bus*> & TransportCatalogue::GetBuses() const{
+    return buses_;
+}
+
+void  TransportCatalogue::UpdateMinMaxStopCoordinates(const geo::Coordinates& coordinates){
+    min_coordinates_.lat = std::min(min_coordinates_.lat, coordinates.lat);
+    min_coordinates_.lng = std::min(min_coordinates_.lng, coordinates.lng);
+    max_coordinates_.lat = std::max(max_coordinates_.lat, coordinates.lat);
+    max_coordinates_.lng = std::max(max_coordinates_.lng, coordinates.lng);
+}
 } //transport
 
 

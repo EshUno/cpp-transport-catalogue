@@ -53,9 +53,8 @@ reader::Bus CreateBus(const json::Dict &request){
 }
 
 //--------------------- stat ----------------------//
-void LoadStatQueries(transport::TransportCatalogue &tc, const json::Array &requests){
+void LoadStatQueries(transport::TransportCatalogue &tc, const json::Array &requests, std::ostream& os){
     json::Array arr;
-
     for (auto &req : requests){
         const auto& req_map= req.AsMap();
         if (req_map.at("type"s) == "Bus"s){
@@ -74,7 +73,7 @@ void LoadStatQueries(transport::TransportCatalogue &tc, const json::Array &reque
         }
     }
 
-    json::Print(json::Document(arr), std::cout);
+    json::Print(json::Document(arr), os);
 }
 
 json::Dict PrintBus(transport::BusPrintInfo* info){
@@ -111,5 +110,47 @@ json::Dict PrintStop(int id, std::optional<const std::set<std::string_view>*> st
     }
     return res;
 }
+
+//-----------------map renderer----------------//
+
+svg::Color DetectColor(const json::Node& node){
+    if (node.IsString()) return node.AsString();
+    json::Array color = node.AsArray();
+    if (color.size() == 3){
+        return svg::Rgb(color[0].AsInt(), color[1].AsInt(), color[2].AsInt());
+    }
+    return svg::Rgba(color[0].AsInt(), color[1].AsInt(), color[2].AsInt(), color[3].AsDouble());
+}
+
+renderer::Settings LoadMapRendererSettings(const json::Dict &settings){
+    renderer::Settings st;
+    st.image_.height = settings.at("height").AsDouble();
+    st.image_.width = settings.at("width").AsDouble();
+    st.image_.padding = settings.at("padding").AsDouble();
+
+    st.line_width_ = settings.at("line_width").AsDouble();
+    st.stop_radius_ = settings.at("stop_radius").AsDouble();
+
+    st.bus_label_.font_size = settings.at("bus_label_font_size").AsDouble();
+    json::Array offset = settings.at("bus_label_offset").AsArray();
+    st.bus_label_.offset.x = offset[0].AsDouble();
+    st.bus_label_.offset.y = offset[1].AsDouble();
+
+    st.stop_label_.font_size = settings.at("stop_label_font_size").AsDouble();
+    offset = settings.at("stop_label_offset").AsArray();
+    st.stop_label_.offset.x = offset[0].AsDouble();
+    st.stop_label_.offset.y = offset[1].AsDouble();
+
+    st.underlayer_.width = settings.at("underlayer_width").AsDouble();
+    st.underlayer_.color = DetectColor(settings.at("underlayer_color"));
+
+    json::Array palette = settings.at("color_palette").AsArray();
+    for (auto &color: palette){
+        st.color_palette_.push_back(DetectColor(color));
+    }
+    return st;
+}
+
+
 
 } // reader

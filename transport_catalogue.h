@@ -6,7 +6,8 @@
 
 #include <set>
 #include <optional>
-
+#include <limits>
+#include <map>
 #include "domain.h"
 
 namespace transport {
@@ -37,13 +38,15 @@ public:
 
     std::optional<const std::set<std::string_view>*> GetInfoAboutStop(const std::string &name) const;
 
-    //std::pair<bool, const std::set<std::string_view>*> GetInfoAboutStop(const std::string &name) const;
-
     BusPrintInfo GetBusPrintInfo(const Bus *bus, int id) const;
+    geo::Coordinates GetMinCoordinates() const;
+    geo::Coordinates GetMaxCoordinates() const;
+    const std::map<std::string_view, Bus*>& GetBuses() const;
 private:
     size_t GetStopsCount() const;
     double ComputeRouteDistance(const Bus *bus) const;
     double ComputeRouteDistance(std::string_view from, std::string_view to) const;
+    void  UpdateMinMaxStopCoordinates(const geo::Coordinates& coordinates);
     struct StopPairHasher {
         size_t operator()(const StopPair& pair) const {
             size_t factorial = 1;
@@ -67,11 +70,14 @@ private:
     std::unordered_map<std::string_view, Stop*> stops_;
 
     std::deque<Bus> storage_buses_;
-    std::unordered_map<std::string_view, Bus*> buses_;
+    std::map<std::string_view, Bus*> buses_;
 
     // НАЗВАНИЕ ОСТАНОВКИ - сет с маршрутами
     std::unordered_map<std::string_view, std::set<std::string_view>> info_about_stop;
     std::unordered_map<StopPair, int, StopPairHasher> distances_;
+
+    geo::Coordinates  min_coordinates_{std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
+    geo::Coordinates max_coordinates_{std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest()};
 };
 } //transport
 

@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <optional>
 #include <variant>
+
 namespace svg {
 using namespace std::literals;
 extern std::unordered_map<char, std::string> REP;
@@ -21,17 +22,14 @@ struct Rgb{
     Rgb(uint8_t r, uint8_t g, uint8_t b): red(r), green(g), blue(b){};
 };
 
-struct Rgba{
-    uint8_t red = 0;
-    uint8_t green = 0;
-    uint8_t blue = 0;
+struct Rgba: public Rgb{
     double opacity = 1.0;
     Rgba() = default;
-    Rgba(uint8_t r, uint8_t g, uint8_t b, double op): red(r), green(g), blue(b), opacity(op){};
+    Rgba(uint8_t r, uint8_t g, uint8_t b, double op): Rgb(r, g, b), opacity(op){};
 };
 
-//using Color = std::string;
 using Color = std::variant<std::monostate, std::string, Rgb, Rgba>;
+
 // Объявив в заголовочном файле константу со спецификатором inline,
 // мы сделаем так, что она будет одной на все единицы трансляции,
 // которые подключают этот заголовок.
@@ -183,7 +181,6 @@ protected:
 
     void RenderAttrs(std::ostream& out) const {
         using namespace std::literals;
-
         if (fill_color_) {
             out << " fill=\""sv << *fill_color_ << "\""sv;
         }
