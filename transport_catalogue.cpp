@@ -1,5 +1,5 @@
 #include "transport_catalogue.h"
-
+#include <algorithm>
 namespace transport {
 
 size_t TransportCatalogue::GetStopsCount() const{
@@ -112,6 +112,22 @@ geo::Coordinates TransportCatalogue::GetMaxCoordinates() const{
 
 const std::map<std::string_view, Bus*> & TransportCatalogue::GetBuses() const{
     return buses_;
+}
+
+const std::map<std::string_view, Stop*>& TransportCatalogue::GetStops() const{
+    return stops_;
+}
+
+std::map<std::string_view, Stop*> TransportCatalogue::GetUsedStops() const{
+    std::map<std::string_view, Stop*> res;
+    for(auto &bus: buses_){
+        for (auto &stop: bus.second->stops){
+            if (res.count(stop->name) == 0){
+                res[stop->name] = stop;
+            }
+        }
+    }
+    return res;
 }
 
 void  TransportCatalogue::UpdateMinMaxStopCoordinates(const geo::Coordinates& coordinates){

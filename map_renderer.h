@@ -89,12 +89,16 @@ public:
         return {x, y};
     }
     svg::Color& ChoseColorById(int id) const;
-    void DrawRouteLines(const std::map<std::string_view, transport::Bus*>& buses, svg::Document &doc);
+    void DrawRouteLines(const std::map<std::string_view, transport::Bus*>& buses);
+    void DrawRouteNames(const std::map<std::string_view, transport::Bus*>& buses);
+    void DrawRouteName(int id, const std::string_view& name, const geo::Coordinates & coords);
+    void DrawStops(const std::map<std::string_view, transport::Stop*>& stops);
+    void DrawStopsNames(const std::map<std::string_view, transport::Stop*>& stops);
 
-
-    void MapRender(const std::map<std::string_view, transport::Bus*>& buses, std::ostream& os);
+    void MapRender(const std::map<std::string_view, transport::Bus*>& buses, const std::map<std::string_view, transport::Stop*>& stops,  std::ostream& os);
 private:
     Settings &settings_;
+    svg::Document document_;
 
     double min_lon_ = 0;
     double max_lat_ = 0;

@@ -8,7 +8,7 @@ using namespace std;
 
 int main()
 {
-    ifstream inf("/home/esh/code/cpp-transport_catalogue/test.txt");
+    ifstream inf("/home/esh/code/cpp-transport_catalogue/input.json");
     if (!inf)    {
         exit(1);
     }
@@ -19,7 +19,7 @@ int main()
     //reader::LoadStatQueries(catalogue, json_in.AsMap().at("stat_requests").AsArray(), std::cout);
     renderer::Settings settings =  reader::LoadMapRendererSettings(json_in.AsMap().at("render_settings").AsMap());
     renderer::MapRenderer render(settings, catalogue.GetMinCoordinates(), catalogue.GetMaxCoordinates());
-    render.MapRender(catalogue.GetBuses(), std::cout);
+    render.MapRender(catalogue.GetBuses(), catalogue.GetUsedStops(), std::cout);
 
 
 }
