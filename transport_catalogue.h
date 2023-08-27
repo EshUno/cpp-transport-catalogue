@@ -7,7 +7,6 @@
 #include <set>
 #include <optional>
 #include <limits>
-#include <map>
 #include "domain.h"
 
 namespace transport {
@@ -41,9 +40,9 @@ public:
     BusPrintInfo GetBusPrintInfo(const Bus *bus, int id) const;
     geo::Coordinates GetMinCoordinates() const;
     geo::Coordinates GetMaxCoordinates() const;
-    const std::map<std::string_view, Bus*>& GetBuses() const;
-    const std::map<std::string_view, Stop*>& GetStops() const;
-    std::map<std::string_view, Stop*> GetUsedStops() const;
+    const transport::BusesInfo& GetBuses() const;
+    const StopsInfo& GetStops() const;
+    StopsInfo GetUsedStops() const;
 private:
     size_t GetStopsCount() const;
     double ComputeRouteDistance(const Bus *bus) const;
@@ -69,10 +68,10 @@ private:
     };
     // -----------------------------------------------//
     std::deque<Stop> storage_stops_;
-    std::map<std::string_view, Stop*> stops_;
+    StopsInfo stops_;
 
     std::deque<Bus> storage_buses_;
-    std::map<std::string_view, Bus*> buses_;
+    transport::BusesInfo buses_;
 
     // НАЗВАНИЕ ОСТАНОВКИ - сет с маршрутами
     std::unordered_map<std::string_view, std::set<std::string_view>> info_about_stop;

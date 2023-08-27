@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(transport_catalog main.cpp
     geo.h
-    input_reader.h input_reader.cpp
-    stat_reader.h stat_reader.cpp
+
+
     transport_catalogue.h transport_catalogue.cpp
     domain.h domain.cpp
     geo.cpp

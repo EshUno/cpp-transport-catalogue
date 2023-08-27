@@ -110,15 +110,15 @@ geo::Coordinates TransportCatalogue::GetMaxCoordinates() const{
     return max_coordinates_;
 }
 
-const std::map<std::string_view, Bus*> & TransportCatalogue::GetBuses() const{
+const BusesInfo &TransportCatalogue::GetBuses() const{
     return buses_;
 }
 
-const std::map<std::string_view, Stop*>& TransportCatalogue::GetStops() const{
+const StopsInfo& TransportCatalogue::GetStops() const{
     return stops_;
 }
 
-std::map<std::string_view, Stop*> TransportCatalogue::GetUsedStops() const{
+StopsInfo TransportCatalogue::GetUsedStops() const{
     std::map<std::string_view, Stop*> res;
     for(auto &bus: buses_){
         for (auto &stop: bus.second->stops){

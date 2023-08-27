@@ -2,7 +2,6 @@
 
 #include "svg.h"
 #include "domain.h"
-#include <map>
 #include <limits>
 namespace renderer {
 
@@ -81,7 +80,7 @@ public:
             zoom_coeff_ = *height_zoom;
         }
     }
-    const svg::Document& MapRender(const std::map<std::string_view, transport::Bus*>& buses, const std::map<std::string_view, transport::Stop*>& stops);
+    const svg::Document& MapRender(const transport::BusesInfo& buses, const transport::StopsInfo& stops);
 
     // Проецирует широту и долготу в координаты внутри SVG-изображения
     svg::Point Converter(geo::Coordinates coords) const {
@@ -90,11 +89,11 @@ public:
         return {x, y};
     }
     svg::Color& ChoseColorById(int id) const;
-    void DrawRouteLines(const std::map<std::string_view, transport::Bus*>& buses);
-    void DrawRouteNames(const std::map<std::string_view, transport::Bus*>& buses);
+    void DrawRouteLines(const transport::BusesInfo& buses);
+    void DrawRouteNames(const transport::BusesInfo& buses);
     void DrawRouteName(int id, const std::string_view& name, const geo::Coordinates & coords);
-    void DrawStops(const std::map<std::string_view, transport::Stop*>& stops);
-    void DrawStopsNames(const std::map<std::string_view, transport::Stop*>& stops);
+    void DrawStops(const transport::StopsInfo& stops);
+    void DrawStopsNames(const transport::StopsInfo& stops);
 
 
 private:

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
 
 #include "geo.h"
 namespace transport {
@@ -21,4 +22,6 @@ struct Bus{
     std::vector<Stop*> stops;
 };
 
+using StopsInfo = std::map<std::string_view, Stop*>;
+using BusesInfo = std::map<std::string_view, Bus*>;
 } // namespace name

@@ -6,7 +6,7 @@ svg::Color& MapRenderer::ChoseColorById(int id) const {
     return settings_.color_palette_.at(color_id);
 }
 
-void MapRenderer::DrawRouteLines(const std::map<std::string_view, transport::Bus*>& buses){
+void MapRenderer::DrawRouteLines(const transport::BusesInfo &buses){
     auto id = 0;
     for (auto &bus: buses){
         svg::Polyline route;
@@ -72,7 +72,7 @@ void MapRenderer::DrawRouteNames(const std::map<std::string_view, transport::Bus
     }
 }
 
-void MapRenderer::DrawStops(const std::map<std::string_view, transport::Stop*>& stops){
+void MapRenderer::DrawStops(const transport::StopsInfo &stops){
     for (auto &stop: stops){
         document_.Add(svg::Circle().
                 SetFillColor("white").
@@ -81,7 +81,7 @@ void MapRenderer::DrawStops(const std::map<std::string_view, transport::Stop*>& 
     }
 }
 
-void MapRenderer::DrawStopsNames(const std::map<std::string_view, transport::Stop*>& stops){
+void MapRenderer::DrawStopsNames(const transport::StopsInfo &stops){
     for (auto &stop: stops){
         document_.Add(svg::Text().
                 SetPosition(Converter(stop.second->coord)).
@@ -105,7 +105,7 @@ void MapRenderer::DrawStopsNames(const std::map<std::string_view, transport::Sto
 }
 
 
-const svg::Document& MapRenderer::MapRender(const std::map<std::string_view, transport::Bus*>& buses, const std::map<std::string_view, transport::Stop*>& stops){
+const svg::Document& MapRenderer::MapRender(const transport::BusesInfo &buses, const transport::StopsInfo &stops){
     DrawRouteLines(buses);
     DrawRouteNames(buses);
     DrawStops(stops);
