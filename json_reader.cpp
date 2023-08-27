@@ -1,5 +1,5 @@
 #include "json_reader.h"
-
+#include <sstream>
 namespace reader {
 using namespace std::literals;
 void FillTheTransportCatalogue(transport::TransportCatalogue &tc, const json::Array &requests){
@@ -53,7 +53,7 @@ reader::Bus CreateBus(const json::Dict &request){
 }
 
 //--------------------- stat ----------------------//
-void LoadStatQueries(transport::TransportCatalogue &tc, const json::Array &requests, std::ostream& os){
+void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer &mr, const json::Array &requests, std::ostream& os){
     json::Array arr;
     for (auto &req : requests){
         const auto& req_map= req.AsMap();
@@ -71,12 +71,15 @@ void LoadStatQueries(transport::TransportCatalogue &tc, const json::Array &reque
         else if (req_map.at("type"s) == "Stop"s){
             arr.push_back(PrintStop(req_map.at("id"s).AsInt(), tc.GetInfoAboutStop(req_map.at("name"s).AsString())));
         }
+        else if (req_map.at("type"s) == "Map"s){
+            arr.push_back(PrintMap(req_map.at("id"s).AsInt(), mr.MapRender(tc.GetBuses(), tc.GetUsedStops())));
+        }
     }
 
     json::Print(json::Document(arr), os);
 }
 
-json::Dict PrintBus(transport::BusPrintInfo* info){
+json::Dict PrintBus(const transport::BusPrintInfo* info){
     json::Dict res;
     if (info->exist == false){
         res["request_id"s] = info->id;
@@ -111,6 +114,15 @@ json::Dict PrintStop(int id, std::optional<const std::set<std::string_view>*> st
     return res;
 }
 
+json::Dict PrintMap(int id, const svg::Document& doc){
+    json::Dict res;
+    res["request_id"s] = id;
+    std::ostringstream str;
+    doc.Render(str);
+    res["map"s] = str.str();
+    return res;
+
+}
 //-----------------map renderer----------------//
 
 svg::Color DetectColor(const json::Node& node){

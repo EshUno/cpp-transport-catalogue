@@ -105,12 +105,12 @@ void MapRenderer::DrawStopsNames(const std::map<std::string_view, transport::Sto
 }
 
 
-void MapRenderer::MapRender(const std::map<std::string_view, transport::Bus*>& buses, const std::map<std::string_view, transport::Stop*>& stops,  std::ostream& os){
+const svg::Document& MapRenderer::MapRender(const std::map<std::string_view, transport::Bus*>& buses, const std::map<std::string_view, transport::Stop*>& stops){
     DrawRouteLines(buses);
     DrawRouteNames(buses);
     DrawStops(stops);
     DrawStopsNames(stops);
-    document_.Render(os);
+    return document_;
 }
 
 } // namespace renderer

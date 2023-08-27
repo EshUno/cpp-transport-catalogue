@@ -81,6 +81,7 @@ public:
             zoom_coeff_ = *height_zoom;
         }
     }
+    const svg::Document& MapRender(const std::map<std::string_view, transport::Bus*>& buses, const std::map<std::string_view, transport::Stop*>& stops);
 
     // Проецирует широту и долготу в координаты внутри SVG-изображения
     svg::Point Converter(geo::Coordinates coords) const {
@@ -95,7 +96,7 @@ public:
     void DrawStops(const std::map<std::string_view, transport::Stop*>& stops);
     void DrawStopsNames(const std::map<std::string_view, transport::Stop*>& stops);
 
-    void MapRender(const std::map<std::string_view, transport::Bus*>& buses, const std::map<std::string_view, transport::Stop*>& stops,  std::ostream& os);
+
 private:
     Settings &settings_;
     svg::Document document_;
