@@ -150,10 +150,6 @@ Builder& NodeProxy::EndArray() {
     return builder_.EndArray();
 }
 
-ValueNodeProxy KeyNodeProxy::Value(Node value) {
-    return NodeProxy::Value(std::move(value));
-}
-
 ArrayNodeProxy ArrayNodeProxy::Value(Node value)
 {
     return NodeProxy::Value(std::move(value));

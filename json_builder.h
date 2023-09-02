@@ -5,7 +5,6 @@ namespace json {
 
 struct NodeProxy;
 struct KeyNodeProxy;
-struct ValueNodeProxy;
 struct ArrayNodeProxy;
 struct DictNodeProxy;
 
@@ -47,20 +46,9 @@ struct KeyNodeProxy : public NodeProxy
 {
 public:
     KeyNodeProxy(Builder& builder) : NodeProxy(builder) {}
-    ValueNodeProxy Value(Node value);
     // Forbid:
     KeyNodeProxy Key(std::string key) = delete;
     Builder& EndDict() = delete;
-    Builder& EndArray() = delete;
-};
-
-struct ValueNodeProxy : public NodeProxy
-{
-    ValueNodeProxy(Builder& builder) : NodeProxy(builder) {}
-    // Forbid:
-    Builder& Value(Node value) = delete;
-    DictNodeProxy StartDict() = delete;
-    ArrayNodeProxy StartArray() = delete;
     Builder& EndArray() = delete;
 };
 
