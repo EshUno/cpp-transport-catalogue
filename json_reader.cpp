@@ -1,4 +1,5 @@
 #include "json_reader.h"
+#include "json_builder.h"
 #include <sstream>
 namespace reader {
 using namespace std::literals;
@@ -8,7 +9,7 @@ void FillTheTransportCatalogue(transport::TransportCatalogue &tc, const json::Ar
     std::vector<reader::Stop> stop_queries;
     stop_queries.reserve(requests.size());
     for (auto &req : requests){
-        const auto& req_map= req.AsMap();
+        const auto& req_map= req.AsDict();
         if (req_map.at("type"s) == "Stop"s){
             auto x = reader::CreateStop(req_map);
             stop_queries.push_back(x);
@@ -18,14 +19,14 @@ void FillTheTransportCatalogue(transport::TransportCatalogue &tc, const json::Ar
             bus_queries.push_back(std::move(reader::CreateBus(req_map)));
         }
     }
-    for (auto &x : stop_queries){
-        for (auto &one : x.dm){
-            tc.AddDistance(tc.FindStop(x.stop.name), tc.FindStop(one.first), one.second);
+    for (auto &stop : stop_queries){
+        for (auto &one : stop.dm){
+            tc.AddDistance(tc.FindStop(stop.stop.name), tc.FindStop(one.first), one.second);
         }
     }
 
-    for (auto &x : bus_queries){
-        tc.AddBus(x.name, x.type, x.stops_name);
+    for (auto &bus : bus_queries){
+        tc.AddBus(bus.name, bus.type, bus.stops_name);
     }
 
 }
@@ -34,9 +35,8 @@ reader::Stop CreateStop(const json::Dict &request){
     stop.stop.name = request.at("name"s).AsString();
     stop.stop.coord.lat = request.at("latitude"s).AsDouble();
     stop.stop.coord.lng = request.at("longitude"s).AsDouble();
-
-    for (auto &dist : request.at("road_distances").AsMap()){
-        stop.dm[dist.first] = dist.second.AsDouble();
+    for (auto &[name, dist] : request.at("road_distances").AsDict()){
+        stop.dm[name] = dist.AsDouble();
     }
     return stop;
 }
@@ -56,7 +56,7 @@ reader::Bus CreateBus(const json::Dict &request){
 void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer &mr, const json::Array &requests, std::ostream& os){
     json::Array arr;
     for (auto &req : requests){
-        const auto& req_map= req.AsMap();
+        const auto& req_map= req.AsDict();
         if (req_map.at("type"s) == "Bus"s){
             auto bus = tc.FindBus(req_map.at("name"s).AsString());
             transport::BusPrintInfo bus_info;
@@ -80,48 +80,53 @@ void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer 
 }
 
 json::Dict PrintBus(const transport::BusPrintInfo* info){
-    json::Dict res;
+    json::Builder result;
+    result.StartDict();
     if (info->exist == false){
-        res["request_id"s] = info->id;
-        res["error_message"s] = "not found"s;
+        result.Key("request_id"s).Value(info->id);
+        result.Key("error_message"s).Value("not found"s);
     }
-    else {
-        res["curvature"s] = info->curvature;
-        res["request_id"s] = info->id;
-        res["route_length"s] = info->route_length;
-        res["stop_count"s] = info->stops_route;
-        res["unique_stop_count"s] = info->unique_stops;
+    else{
+        result.Key("curvature"s).Value(info->curvature);
+        result.Key("request_id"s).Value(info->id);
+        result.Key("route_length"s).Value(info->route_length);
+        result.Key("stop_count"s).Value(info->stops_route);
+        result.Key("unique_stop_count"s).Value(info->unique_stops);
     }
-    return res;
+    result.EndDict();
+    return result.Build().AsDict();
 }
 
 json::Dict PrintStop(int id, std::optional<const std::set<std::string_view>*> st){
-    json::Dict res;
-    res["request_id"s] = id;
+    json::Builder result;
+    result.StartDict();
+    result.Key("request_id"s).Value(id);
     if (st == std::nullopt){
-        res["error_message"s] = "not found"s;
+        result.Key("error_message"s).Value("not found"s);
     }
     else if (*st == nullptr) {
-        res["buses"s] = json::Array{};
+        result.Key("buses"s).StartArray().EndArray();
     }
     else if (*st != nullptr) {
-        json::Array arr;
+        result.Key("buses"s).StartArray();
         for (auto &x: **st){
-            arr.push_back(std::string(x));
+            result.Value(std::string(x));
         }
-        res["buses"s] = arr;
+        result.EndArray();
     }
-    return res;
+    result.EndDict();
+    return result.Build().AsDict();
 }
 
 json::Dict PrintMap(int id, const svg::Document& doc){
-    json::Dict res;
-    res["request_id"s] = id;
+    json::Builder result;
+    result.StartDict();
+    result.Key("request_id"s).Value(id);
     std::ostringstream str;
     doc.Render(str);
-    res["map"s] = str.str();
-    return res;
-
+    result.Key("map"s).Value(str.str());
+    result.EndDict();
+    return result.Build().AsDict();
 }
 //-----------------map renderer----------------//
 

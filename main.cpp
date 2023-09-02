@@ -16,8 +16,8 @@ int main()
 
     auto json_in = json::Load(std::cin).GetRoot();
     transport::TransportCatalogue catalogue;
-    reader::FillTheTransportCatalogue(catalogue, json_in.AsMap().at("base_requests").AsArray());
-    renderer::Settings settings =  reader::LoadMapRendererSettings(json_in.AsMap().at("render_settings").AsMap());
+    reader::FillTheTransportCatalogue(catalogue, json_in.AsDict().at("base_requests").AsArray());
+    renderer::Settings settings =  reader::LoadMapRendererSettings(json_in.AsDict().at("render_settings").AsDict());
     renderer::MapRenderer render(settings, catalogue.GetMinCoordinates(), catalogue.GetMaxCoordinates());
-    reader::LoadQueries(catalogue, render, json_in.AsMap().at("stat_requests").AsArray(), std::cout);
+    reader::LoadQueries(catalogue, render, json_in.AsDict().at("stat_requests").AsArray(), std::cout);
 }

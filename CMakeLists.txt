@@ -16,7 +16,8 @@ add_executable(transport_catalog main.cpp
     svg.h svg.cpp
     json_reader.h json_reader.cpp
 
-    map_renderer.h map_renderer.cpp)
+    map_renderer.h map_renderer.cpp
+    json_builder.h json_builder.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS transport_catalog

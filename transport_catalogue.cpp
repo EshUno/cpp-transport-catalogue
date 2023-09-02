@@ -59,7 +59,7 @@ std::optional<const std::set<std::string_view>*> TransportCatalogue::GetInfoAbou
 
 double TransportCatalogue::ComputeRouteDistance(const Bus *bus) const{
     double res = 0;
-    for (auto i = 1; i < bus->stops.size(); ++i){
+    for (std::size_t i = 1; i < bus->stops.size(); ++i){
         res += ComputeRouteDistance(bus->stops[i-1]->name, bus->stops[i]->name);
     }
     if (bus->type == transport::BusType::DirectType){
@@ -90,7 +90,7 @@ BusPrintInfo TransportCatalogue::GetBusPrintInfo(const Bus *bus, int id) const {
 
     auto get_distance = [](const Bus &bus){
         double res = 0;
-        for (auto i = 1; i < bus.stops.size(); ++i){
+        for (size_t i = 1; i < bus.stops.size(); ++i){
             res += geo::ComputeDistance(bus.stops[i - 1]->coord, bus.stops[i]->coord);
         }
         if (bus.type == BusType::DirectType) res *= 2;
