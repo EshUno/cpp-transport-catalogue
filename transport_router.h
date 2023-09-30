@@ -30,7 +30,6 @@ struct RoutePrintInfo{
     std::vector<EdgeInfo> edges;
 };
 
-
 class TransportRouter{
 public:
     using Weight = double;
@@ -42,20 +41,8 @@ public:
     };
 
     TransportRouter(const transport::TransportCatalogue &transport_catalogue, routing::Settings settings);
-    std::optional<RoutePrintInfo> BuildRoute(std::string_view from, std::string_view to) const{
-        graph::VertexId from_id = stops_for_graph_.at(from).start_wait;
-        graph::VertexId to_id = stops_for_graph_.at(to).start_wait;
 
-        auto res = router_->BuildRoute(from_id, to_id);
-        if (res == std::nullopt) return std::nullopt;
-
-        RoutePrintInfo route;
-        route.total_time = res->weight;
-
-
-        return route;
-
-    }
+    std::optional<RoutePrintInfo> BuildRoute(std::string_view from, std::string_view to) const;
 
 private:
     void UpdateStopsForGraph(const transport::StopsInfo& stops);
@@ -63,31 +50,12 @@ private:
     template <typename It>
     void AddBus(std::string_view bus_name, It begin, It end);
 
-    struct EdgeHasher{
-        size_t operator()(const graph::Edge<Weight>& edge) const {
-            return step * v_hasher(edge.from) +
-                   step * step * v_hasher(edge.to) +
-                   step * step * step * w_hasher_(edge.weight);
-        }
-    private:
-        static const size_t step = 27;
-        std::hash<graph::VertexId> v_hasher;
-        std::hash<Weight> w_hasher_;
-    };
-    struct EdgeEqual {
-        bool operator()( const graph::Edge<Weight>& lhs, const graph::Edge<Weight>& rhs ) const
-        {
-            return EdgeHasher()(lhs) == EdgeHasher()(rhs);
-        }
-    };
-
-    Graph graph_;
-    std::unique_ptr<Router> router_ = nullptr;
+    Graph graph_;  
     const transport::TransportCatalogue &transport_catalogue_;
     routing::Settings settings_;
+    std::unique_ptr<Router> router_ = nullptr;
     std::unordered_map<std::string_view, Vertex> stops_for_graph_;
-    std::unordered_map<graph::Edge<Weight>, EdgeInfo, EdgeHasher, EdgeEqual> edge_info_;
-
+    std::unordered_map<int, EdgeInfo> edge_info_;
 };
 
 template <typename It>
@@ -103,12 +71,11 @@ void TransportRouter::AddBus(std::string_view bus_name, It begin, It end){
             std::string_view right_stop = (*to)->name;
             wait_time += transport_catalogue_.ComputeRouteDistance(left_stop, right_stop) / velocity;
             graph::Edge<Weight> edge{stops_for_graph_[from_stop].end_wait, stops_for_graph_[right_stop].start_wait, wait_time};
+            edge_info_[graph_.GetEdgeCount()] = BusEdge{bus_name, wait_time, count_stops };
             graph_.AddEdge(edge);
-            edge_info_[edge] = BusEdge{bus_name, wait_time, count_stops };
             current = to;
         }
     }
 }
-
 
 } // namespace roiting

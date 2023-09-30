@@ -2,59 +2,54 @@
       "base_requests": [
           {
               "is_roundtrip": true,
-              "name": "297",
+              "name": "289",
               "stops": [
-                  "Biryulyovo Zapadnoye",
-                  "Biryulyovo Tovarnaya",
-                  "Universam",
-                  "Biryulyovo Zapadnoye"
+                  "Zagorye",
+                  "Lipetskaya ulitsa 46",
+                  "Lipetskaya ulitsa 40",
+                  "Lipetskaya ulitsa 40",
+                  "Lipetskaya ulitsa 46",
+                  "Moskvorechye",
+                  "Zagorye"
               ],
               "type": "Bus"
           },
           {
-              "is_roundtrip": false,
-              "name": "635",
-              "stops": [
-                  "Biryulyovo Tovarnaya",
-                  "Universam",
-                  "Prazhskaya"
-              ],
-              "type": "Bus"
-          },
-          {
-              "latitude": 55.574371,
-              "longitude": 37.6517,
-              "name": "Biryulyovo Zapadnoye",
+              "latitude": 55.579909,
+              "longitude": 37.68372,
+              "name": "Zagorye",
               "road_distances": {
-                  "Biryulyovo Tovarnaya": 2600
+                  "Lipetskaya ulitsa 46": 230
               },
               "type": "Stop"
           },
           {
-              "latitude": 55.587655,
-              "longitude": 37.645687,
-              "name": "Universam",
+              "latitude": 55.581441,
+              "longitude": 37.682205,
+              "name": "Lipetskaya ulitsa 46",
               "road_distances": {
-                  "Biryulyovo Tovarnaya": 1380,
-                  "Biryulyovo Zapadnoye": 2500,
-                  "Prazhskaya": 4650
+                  "Lipetskaya ulitsa 40": 390,
+                  "Moskvorechye": 12400
               },
               "type": "Stop"
           },
           {
-              "latitude": 55.592028,
-              "longitude": 37.653656,
-              "name": "Biryulyovo Tovarnaya",
+              "latitude": 55.584496,
+              "longitude": 37.679133,
+              "name": "Lipetskaya ulitsa 40",
               "road_distances": {
-                  "Universam": 890
+                  "Lipetskaya ulitsa 40": 1090,
+                  "Lipetskaya ulitsa 46": 380
               },
               "type": "Stop"
           },
           {
-              "latitude": 55.611717,
-              "longitude": 37.603938,
-              "name": "Prazhskaya",
-              "road_distances": {},
+              "latitude": 55.638433,
+              "longitude": 37.638433,
+              "name": "Moskvorechye",
+              "road_distances": {
+                  "Zagorye": 10000
+              },
               "type": "Stop"
           }
       ],
@@ -92,35 +87,31 @@
           "width": 200
       },
       "routing_settings": {
-          "bus_velocity": 40,
-          "bus_wait_time": 6
+          "bus_velocity": 30,
+          "bus_wait_time": 2
       },
       "stat_requests": [
           {
               "id": 1,
-              "name": "297",
+              "name": "289",
               "type": "Bus"
           },
           {
+              "from": "Zagorye",
               "id": 2,
-              "name": "635",
-              "type": "Bus"
-          },
-          {
-              "id": 3,
-              "name": "Universam",
-              "type": "Stop"
-          },
-          {
-              "from": "Biryulyovo Zapadnoye",
-              "id": 4,
-              "to": "Universam",
+              "to": "Moskvorechye",
               "type": "Route"
           },
           {
-              "from": "Biryulyovo Zapadnoye",
-              "id": 5,
-              "to": "Prazhskaya",
+              "from": "Moskvorechye",
+              "id": 3,
+              "to": "Zagorye",
+              "type": "Route"
+          },
+          {
+              "from": "Lipetskaya ulitsa 40",
+              "id": 4,
+              "to": "Lipetskaya ulitsa 40",
               "type": "Route"
           }
       ]

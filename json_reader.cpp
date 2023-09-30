@@ -144,14 +144,21 @@ json::Dict PrintRoute(int id, std::optional<routing::RoutePrintInfo> route){
         result.Key("total_time"s).Value(route->total_time);
         result.Key("items"s).StartArray();
         for (auto edge : route->edges){
+            result.StartDict();
             if (std::holds_alternative<routing::WaitEdge>(edge)){
                 result.Key("type"s).Value("Wait"s);
-                //result.Key("stop_name"s).Value(edge.stop_name);
-                //result.Key("time"s).Value(edge.time);
+                auto wait_edge  = std::get<routing::WaitEdge>(edge);
+                result.Key("stop_name"s).Value(wait_edge.stop_name.data());
+                result.Key("time"s).Value(wait_edge.time);
             }
             else{
-
+                result.Key("type"s).Value("Bus"s);
+                auto bus_edge  = std::get<routing::BusEdge>(edge);
+                result.Key("bus"s).Value(bus_edge.bus_name.data());
+                result.Key("span_count"s).Value(bus_edge.span_count);
+                result.Key("time"s).Value(bus_edge.time);
             }
+            result.EndDict();
         }
         result.EndArray();
     }

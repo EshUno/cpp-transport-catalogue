@@ -8,7 +8,7 @@ using namespace std;
 
 int main()
 {
-    ifstream inf("/home/esh/code/cpp-transport_catalogue/example1.json");
+    ifstream inf("/home/esh/code/cpp-transport_catalogue/s12_final_opentest_1.json");
     if (!inf)    {
         exit(1);
     }
