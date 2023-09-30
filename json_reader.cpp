@@ -53,10 +53,11 @@ reader::Bus CreateBus(const json::Dict &request){
 }
 
 //--------------------- stat ----------------------//
-void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer &mr, const json::Array &requests, std::ostream& os){
+void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer &mr, const json::Array &requests, std::ostream& os, const routing::TransportRouter &tr){
     json::Array arr;
     for (auto &req : requests){
         const auto& req_map= req.AsDict();
+
         if (req_map.at("type"s) == "Bus"s){
             auto bus = tc.FindBus(req_map.at("name"s).AsString());
             transport::BusPrintInfo bus_info;
@@ -66,13 +67,16 @@ void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer 
                 bus_info.name = req_map.at("name"s).AsString();
                 bus_info.exist = false;
             }
-            arr.push_back(PrintBus( &bus_info));
+            arr.push_back(PrintBus(&bus_info));
         }
         else if (req_map.at("type"s) == "Stop"s){
             arr.push_back(PrintStop(req_map.at("id"s).AsInt(), tc.GetInfoAboutStop(req_map.at("name"s).AsString())));
         }
         else if (req_map.at("type"s) == "Map"s){
             arr.push_back(PrintMap(req_map.at("id"s).AsInt(), mr.MapRender(tc.GetBuses(), tc.GetUsedStops())));
+        }
+        else if (req_map.at("type"s) == "Route"s){
+            arr.push_back(PrintRoute(req_map.at("id"s).AsInt(), tr.BuildRoute(req_map.at("from"s).AsString(), req_map.at("to"s).AsString())));
         }
     }
 
@@ -128,6 +132,32 @@ json::Dict PrintMap(int id, const svg::Document& doc){
     result.EndDict();
     return result.Build().AsDict();
 }
+
+json::Dict PrintRoute(int id, std::optional<routing::RoutePrintInfo> route){
+    json::Builder result;
+    result.StartDict();
+    result.Key("request_id"s).Value(id);
+    if (route == std::nullopt){
+        result.Key("error_message"s).Value("not found"s);
+    }
+    else {
+        result.Key("total_time"s).Value(route->total_time);
+        result.Key("items"s).StartArray();
+        for (auto edge : route->edges){
+            if (std::holds_alternative<routing::WaitEdge>(edge)){
+                result.Key("type"s).Value("Wait"s);
+                //result.Key("stop_name"s).Value(edge.stop_name);
+                //result.Key("time"s).Value(edge.time);
+            }
+            else{
+
+            }
+        }
+        result.EndArray();
+    }
+    result.EndDict();
+    return result.Build().AsDict();
+}
 //-----------------map renderer----------------//
 
 svg::Color DetectColor(const json::Node& node){
@@ -168,6 +198,17 @@ renderer::Settings LoadMapRendererSettings(const json::Dict &settings){
     return st;
 }
 
+//---------------------routing---------------------------------//
+
+routing::Settings LoadRoutingSettings(const json::Dict &settings){
+    routing::Settings st;
+    st.bus_wait_time_ = settings.at("bus_wait_time").AsInt();
+
+    double km_h_velocity = settings.at("bus_velocity").AsDouble();
+    st.bus_velocity_ = (km_h_velocity * 1000) / 60.0;
+
+    return st;
+}
 
 
 } // reader

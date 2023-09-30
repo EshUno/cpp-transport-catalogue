@@ -88,7 +88,7 @@ public:
         auto y = (max_lat_ - coords.lat) * zoom_coeff_ + settings_.image_.padding;
         return {x, y};
     }
-    svg::Color& ChoseColorById(int id) const;
+    const svg::Color& ChoseColorById(int id) const;
     void DrawRouteLines(const transport::BusesInfo& buses);
     void DrawRouteNames(const transport::BusesInfo& buses);
     void DrawRouteName(int id, const std::string_view& name, const geo::Coordinates & coords);
@@ -97,7 +97,7 @@ public:
 
 
 private:
-    Settings &settings_;
+    const Settings &settings_;
     svg::Document document_;
 
     double min_lon_ = 0;

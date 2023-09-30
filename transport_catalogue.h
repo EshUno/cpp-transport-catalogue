@@ -41,12 +41,12 @@ public:
     geo::Coordinates GetMinCoordinates() const;
     geo::Coordinates GetMaxCoordinates() const;
     const transport::BusesInfo& GetBuses() const;
-    const StopsInfo& GetStops() const;
+    const transport::StopsInfo& GetStops() const;
     StopsInfo GetUsedStops() const;
-private:
     size_t GetStopsCount() const;
     double ComputeRouteDistance(const Bus *bus) const;
     double ComputeRouteDistance(std::string_view from, std::string_view to) const;
+private:   
     void  UpdateMinMaxStopCoordinates(const geo::Coordinates& coordinates);
     struct StopPairHasher {
         size_t operator()(const StopPair& pair) const {

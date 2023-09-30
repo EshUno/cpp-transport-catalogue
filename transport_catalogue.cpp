@@ -110,11 +110,11 @@ geo::Coordinates TransportCatalogue::GetMaxCoordinates() const{
     return max_coordinates_;
 }
 
-const BusesInfo &TransportCatalogue::GetBuses() const{
+const transport::BusesInfo &TransportCatalogue::GetBuses() const{
     return buses_;
 }
 
-const StopsInfo& TransportCatalogue::GetStops() const{
+const transport::StopsInfo &TransportCatalogue::GetStops() const{
     return stops_;
 }
 

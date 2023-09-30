@@ -1,7 +1,7 @@
 #include "map_renderer.h"
 
 namespace renderer {
-svg::Color& MapRenderer::ChoseColorById(int id) const {
+const svg::Color& MapRenderer::ChoseColorById(int id) const {
     auto color_id = id % settings_.color_palette_.size();
     return settings_.color_palette_.at(color_id);
 }

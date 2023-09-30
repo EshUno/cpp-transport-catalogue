@@ -106,7 +106,6 @@ Builder& Builder::EndArray()
     return *this;
 }
 
-
 json::Node Builder::Build()
 {
     if (root_.IsNull() || !nodes_stack_.empty())
