@@ -12,16 +12,17 @@ enum class BusType{
 };
 
 struct Stop{
-    std::string name;
     geo::Coordinates coord;
+    std::string name;
 };
 
 struct Bus{
+    std::vector<Stop*> stops;
     BusType type;
     std::string name;
-    std::vector<Stop*> stops;
+
 };
 
 using StopsInfo = std::map<std::string_view, Stop*>;
 using BusesInfo = std::map<std::string_view, Bus*>;
-} // namespace name
+}  // namespace transport

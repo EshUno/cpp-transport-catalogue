@@ -1,0 +1,23 @@
+syntax = "proto3";
+package map_renderer_serialize;
+
+message Point {
+    double x = 1;
+    double y = 2;
+}
+
+message Rgb {
+    bool is_rgba = 1;
+    uint32 red = 2;
+    uint32 green = 3;
+    uint32 blue = 4;
+    double opacity = 5;
+}
+
+
+message Color {
+    oneof variant {
+    string name_string = 1;
+    Rgb name_rgb = 2;
+}
+}

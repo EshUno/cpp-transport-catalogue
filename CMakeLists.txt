@@ -1,30 +1,40 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
-project(transport_catalogue LANGUAGES CXX)
-
+project(transport_catalogue CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(transport_catalog main.cpp
-    geo.h
+set(CMAKE_PREFIX_PATH "/home/esh/code/sprint15/Serialization/Protobuf")
 
+find_package(Protobuf REQUIRED)
+find_package(Threads REQUIRED)
 
-    transport_catalogue.h transport_catalogue.cpp
-    domain.h domain.cpp
-    geo.cpp
-    json.h json.cpp
-    svg.h svg.cpp
-    json_reader.h json_reader.cpp
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS svg.proto map_renderer.proto transport_router.proto graph.proto transport_catalogue.proto)
 
-    map_renderer.h map_renderer.cpp
-    json_builder.h json_builder.cpp
-    graph.h
+set(TRANSPORT_CATALOGUE_FILES
+    transport_catalogue.h transport_catalogue.cpp transport_catalogue.proto)
+
+set(JSON_FILES
+    json.h json.cpp json_reader.h json_reader.cpp json_builder.h json_builder.cpp)
+
+set(MAP_RENDERER_FILES
+    svg.h svg.cpp svg.proto map_renderer.h map_renderer.cpp map_renderer.proto)
+
+set(TRANSPORT_ROUTER_FILES
+    router.h graph.h transport_router.h transport_router.cpp graph.proto transport_router.proto)
+
+add_executable(transport_catalogue
+    ${PROTO_SRCS} ${PROTO_HDRS} ${TRANSPORT_CATALOGUE_FILES} ${JSON_FILES} ${MAP_RENDERER_FILES} ${TRANSPORT_ROUTER_FILES}
+    main.cpp
+    geo.h geo.cpp
+    domain.h domain.cpp      
     ranges.h
-    router.h
-    transport_router.h transport_router.cpp)
-
-include(GNUInstallDirs)
-install(TARGETS transport_catalog
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    serialization.h serialization.cpp
 )
+
+target_include_directories(transport_catalogue PUBLIC ${Protobuf_INCLUDE_DIRS})
+target_include_directories(transport_catalogue PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+string(REPLACE "protobuf.lib" "protobufd.lib" "Protobuf_LIBRARY_DEBUG" "${Protobuf_LIBRARY_DEBUG}")
+string(REPLACE "protobuf.a" "protobufd.a" "Protobuf_LIBRARY_DEBUG" "${Protobuf_LIBRARY_DEBUG}")
+
+target_link_libraries(transport_catalogue "$<IF:$<CONFIG:Debug>,${Protobuf_LIBRARY_DEBUG},${Protobuf_LIBRARY}>" Threads::Threads)

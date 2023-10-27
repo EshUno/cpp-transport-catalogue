@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <memory>
 
 namespace graph {
 
@@ -20,7 +21,7 @@ private:
     using Graph = DirectedWeightedGraph<Weight>;
 
 public:
-    explicit Router(const Graph& graph);
+    explicit Router(std::shared_ptr<Graph> graph);
 
     struct RouteInfo {
         Weight weight;
@@ -76,19 +77,20 @@ private:
     }
 
     static constexpr Weight ZERO_WEIGHT{};
-    const Graph& graph_;
+    // const Graph& graph_;
+    std::shared_ptr<Graph> graph_;
     RoutesInternalData routes_internal_data_;
 };
 
 template <typename Weight>
-Router<Weight>::Router(const Graph& graph)
+Router<Weight>::Router(std::shared_ptr<Graph> graph)
     : graph_(graph)
-    , routes_internal_data_(graph.GetVertexCount(),
-                            std::vector<std::optional<RouteInternalData>>(graph.GetVertexCount()))
+    , routes_internal_data_(graph->GetVertexCount(),
+                            std::vector<std::optional<RouteInternalData>>(graph->GetVertexCount()))
 {
-    InitializeRoutesInternalData(graph);
+    InitializeRoutesInternalData(*graph);
 
-    const size_t vertex_count = graph.GetVertexCount();
+    const size_t vertex_count = graph->GetVertexCount();
     for (VertexId vertex_through = 0; vertex_through < vertex_count; ++vertex_through) {
         RelaxRoutesInternalDataThroughVertex(vertex_count, vertex_through);
     }
@@ -103,11 +105,14 @@ std::optional<typename Router<Weight>::RouteInfo> Router<Weight>::BuildRoute(Ver
     }
     const Weight weight = route_internal_data->weight;
     std::vector<EdgeId> edges;
-    for (std::optional<EdgeId> edge_id = route_internal_data->prev_edge;
-         edge_id;
-         edge_id = routes_internal_data_[from][graph_.GetEdge(*edge_id).from]->prev_edge)
+    std::optional<EdgeId> edge_id = route_internal_data->prev_edge;
+    for (; edge_id;)
     {
         edges.push_back(*edge_id);
+        const auto& from_data = routes_internal_data_[from];
+        const auto& edge = graph_->GetEdge(*edge_id);
+        const auto edge_from = edge.from;
+        edge_id = from_data[edge_from]->prev_edge;
     }
     std::reverse(edges.begin(), edges.end());
 

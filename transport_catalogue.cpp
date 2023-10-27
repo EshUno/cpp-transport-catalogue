@@ -118,6 +118,10 @@ const transport::StopsInfo &TransportCatalogue::GetStops() const{
     return stops_;
 }
 
+const TransportCatalogue::DistancesBetweenStops& TransportCatalogue::GetDistances() const{
+    return distances_;
+}
+
 StopsInfo TransportCatalogue::GetUsedStops() const{
     std::map<std::string_view, Stop*> res;
     for(auto &bus: buses_){

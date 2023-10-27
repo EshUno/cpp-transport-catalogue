@@ -24,12 +24,11 @@ void FillTheTransportCatalogue(transport::TransportCatalogue &tc, const json::Ar
             tc.AddDistance(tc.FindStop(stop.stop.name), tc.FindStop(one.first), one.second);
         }
     }
-
     for (auto &bus : bus_queries){
         tc.AddBus(bus.name, bus.type, bus.stops_name);
     }
-
 }
+
 reader::Stop CreateStop(const json::Dict &request){
     reader::Stop stop;
     stop.stop.name = request.at("name"s).AsString();
@@ -57,7 +56,6 @@ void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer 
     json::Array arr;
     for (auto &req : requests){
         const auto& req_map= req.AsDict();
-
         if (req_map.at("type"s) == "Bus"s){
             auto bus = tc.FindBus(req_map.at("name"s).AsString());
             transport::BusPrintInfo bus_info;
@@ -83,16 +81,41 @@ void LoadQueries(const transport::TransportCatalogue &tc, renderer::MapRenderer 
     json::Print(json::Document(arr), os);
 }
 
+void LoadStats(const transport::TransportCatalogue &tc, renderer::MapRenderer &mr, const json::Array &requests, std::ostream& os){
+    json::Array arr;
+    for (auto &req : requests){
+        const auto& req_map= req.AsDict();
+
+        if (req_map.at("type"s) == "Bus"s){
+            auto bus = tc.FindBus(req_map.at("name"s).AsString());
+            transport::BusPrintInfo bus_info;
+            bus_info.id = req_map.at("id"s).AsInt();
+            if (bus != nullptr) bus_info = tc.GetBusPrintInfo(bus, req_map.at("id"s).AsInt());
+            else {
+                bus_info.name = req_map.at("name"s).AsString();
+                bus_info.exist = false;
+            }
+            arr.push_back(PrintBus(&bus_info));
+        }
+        else if (req_map.at("type"s) == "Stop"s){
+            arr.push_back(PrintStop(req_map.at("id"s).AsInt(), tc.GetInfoAboutStop(req_map.at("name"s).AsString())));
+        }
+        else if (req_map.at("type"s) == "Map"s){
+            arr.push_back(PrintMap(req_map.at("id"s).AsInt(), mr.MapRender(tc.GetBuses(), tc.GetUsedStops())));
+        }
+    }
+    json::Print(json::Document(arr), os);
+}
+
 json::Dict PrintBus(const transport::BusPrintInfo* info){
     json::Builder result;
     result.StartDict();
+    result.Key("request_id"s).Value(info->id);
     if (info->exist == false){
-        result.Key("request_id"s).Value(info->id);
         result.Key("error_message"s).Value("not found"s);
     }
     else{
         result.Key("curvature"s).Value(info->curvature);
-        result.Key("request_id"s).Value(info->id);
         result.Key("route_length"s).Value(info->route_length);
         result.Key("stop_count"s).Value(info->stops_route);
         result.Key("unique_stop_count"s).Value(info->unique_stops);
@@ -217,5 +240,11 @@ routing::Settings LoadRoutingSettings(const json::Dict &settings){
     return st;
 }
 
+// =-----------------------serialization------------------------//
 
+serialization::Settings LoadSerializationSettings(const json::Dict &settings){
+    serialization::Settings st;
+    st.path = settings.at("file").AsString();
+    return st;
+}
 } // reader

@@ -11,11 +11,11 @@ Node LoadNode(std::istream& input);
 Node LoadString(std::istream& input);
 
 std::string LoadLiteral(std::istream& input) {
-    std::string s;
-    while (std::isalpha(input.peek())) {
-        s.push_back(static_cast<char>(input.get()));
+    std::string str;
+    while (std::isalpha(input.peek()) != 0) {
+        str.push_back(static_cast<char>(input.get()));
     }
-    return s;
+    return str;
 }
 
 Node LoadArray(std::istream& input) {

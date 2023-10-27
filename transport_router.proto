@@ -1,0 +1,39 @@
+syntax = "proto3";
+package router_serialize;
+import "graph.proto";
+
+
+message Settings {
+    double bus_wait_time = 1;
+    double bus_velocity = 2;
+}
+
+message Vertex {
+    uint64 start_wait = 1;
+    uint64 end_wait = 2;
+}
+
+message WaitEdge{
+    string name = 1;
+    double time = 2;
+}
+
+message BusEdge{
+    string name = 1;
+    double time = 2;
+    int64 span_count = 3;
+}
+
+message EdgeInfo {
+    oneof variant {
+        WaitEdge wait = 1;
+        BusEdge bus = 2;
+    }
+}
+
+message TransportRouter {
+    Settings settings = 1;
+    Graph graph = 2;
+    map<string, Vertex> stops_for_graph = 3;
+    map<int64, EdgeInfo> edge_info = 4;
+}

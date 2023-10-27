@@ -1,0 +1,30 @@
+syntax = "proto3";
+package map_renderer_serialize;
+import "svg.proto";
+
+message ImageSphere {
+    double width = 1;
+    double height = 2;
+    double padding = 3;
+}
+
+message Label {
+    double font_size = 1;
+    Point offset = 2;
+}
+
+message Underlayer {
+    Color color = 1;
+    double width = 2;
+}
+
+
+message Settings {
+    ImageSphere image = 1;
+    double line_width = 2;
+    double stop_radius = 3;
+    Label bus_label = 4;
+    Label stop_label = 5;
+    repeated Color color_palette = 6;
+    Underlayer underlayer = 7;
+}
