@@ -35,8 +35,13 @@ int main(int argc, char* argv[]) {
 
         const serialization::SavedState saved_state{ std::move(router), std::move(catalogue), std::move(renderer_settings)};
 
-        std::ofstream output(serialization_settings.path, std::ios::binary | std::ios::out | std::ios::trunc);
-        serialization::Serialize(saved_state, output);
+
+
+        //TODO: handle exceptions
+        {
+            std::ofstream output(serialization_settings.path, std::ios::binary | std::ios::out | std::ios::trunc);
+            serialization::Serialize(saved_state, output);
+        }
 
     } else if (mode == "process_requests"sv) {
         std::ifstream input(serialization_settings.path, std::ios::binary | std::ios::in);
